@@ -19,7 +19,7 @@ class TextExtraction {
    * @param {CustomParseShape[]} patterns - Patterns to be used when parsed,
    *                                 any extra attributes, will be returned from parse()
    */
-  constructor(text, patterns) {
+  constructor(text, patterns, tagIndexArray, tagStyle) {
     this.text = text;
     this.patterns = patterns || [];
     this.tagIndexArray = tagIndexArray || {};

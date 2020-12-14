@@ -105,6 +105,8 @@ class ParsedText extends React.Component {
     const textExtraction = new TextExtraction(
       this.props.children,
       this.getPatterns(),
+      this.props.tagIndexArray,
+      this.props.tagStyle,
     );
 
     return textExtraction.parse().map((props, index) => {

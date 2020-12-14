@@ -19,9 +19,58 @@ class TextExtraction {
    * @param {CustomParseShape[]} patterns - Patterns to be used when parsed,
    *                                 any extra attributes, will be returned from parse()
    */
-  constructor(text, patterns) {
+  constructor(text, patterns, tagIndexArray, tagStyle) {
     this.text = text;
     this.patterns = patterns || [];
+    this.tagIndexArray = tagIndexArray || {};
+    this.tagStyle = tagStyle;
+  }
+
+//thia will style the tags present in text even while typing
+  checkAndApplyEditing() {
+    var tagArray = Object.keys(this.tagIndexArray);
+		if(tagArray.length > 0) {
+      //sort index array
+			tagArray.sort((a,b) => {
+				return a.split('|')[0] - b.split('|')[0]
+      })
+      var newParts = []
+      let input = this.text
+      let startIndex = 0, textLeft = '', styledText = '';
+      tagArray.forEach((indexItem, i) => {
+          let indexes = indexItem.split('|');
+          if(startIndex === 0 && indexes[0] !== 0) {
+            //some string at start
+            textLeft = input.slice(startIndex, indexes[0])
+            newParts.push({
+              children: textLeft
+            })
+          }else {
+            //strings between tags
+            if(startIndex !== indexes[0]) {
+              newParts.push({
+                children: input.slice(startIndex, indexes[0])
+              })
+            }
+          }
+          //styling tag
+          styledText = input.slice(indexes[0], indexes[1])
+          newParts.push({
+            children: styledText,
+            _matched: true,
+            style: this.tagStyle
+          })
+          //string after the tag
+          startIndex = Number(indexes[1]);
+          if(i === tagArray.length - 1) {
+            newParts.push({
+              children: input.slice(Number(indexes[1]))
+            })
+          }
+      })
+      return newParts
+    }
+    return [{ children: this.text }]
   }
 
   /**
@@ -30,7 +79,7 @@ class TextExtraction {
    * @return {Object[]} - props for all the parts of the text
    */
   parse() {
-    let parsedTexts = [{ children: this.text }];
+    let parsedTexts = this.checkAndApplyEditing();
     this.patterns.forEach((pattern) => {
       let newParts = [];
 
